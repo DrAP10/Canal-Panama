@@ -27,25 +27,39 @@ main()
  int pservidorgraf, i;
  int tubo[2];
  struct Parametros param;
- int maxbarcos,creamin,creamax,caplago;
+ int maxbarcos,creamin,creamax, caplago;
+ int fesclusao, fesclusae, flago, testigo=1;
 
  
  signal(10,R10);
  signal(12,R12);
  srand(getpid());
- pipe(tubo);
- 
+
  leeparametros(&param,&maxbarcos,&creamin,&creamax,&caplago);
  
  pservidorgraf=creaproceso("servidor_ncurses",NULL); //parametro 1 es proceso y parametro 2 fichero de redireccion
  if(!llega10) pause(); //Espero a que el servidor grafico de el OK
+ //creamos pipes y fifos
+ pipe(tubo);
+ mkfifo("esclusae",0600);
+ mkfifo("esclusao",0600);
+ mkfifo("lago",0600);
+ // abrimos fifos para escribir testigos
+ fesclusae=open("esclusae",O_RDWR);
+ fesclusao=open("esclusao",O_RDWR);
+ flago=open("lago",O_RDWR);
+ // escribimos los testigos
+ write(fesclusae,&testigo,sizeof(testigo));
+ write(fesclusao,&testigo,sizeof(testigo));
+ for(i=0;i<caplago;i++) write(flago,&testigo,sizeof(testigo));
+ // creamos los barcos pasandoles los parametros
  for(i=1;i<=maxbarcos;i++) 
  {
  	if(rand()%2==0) 
  	{
  	   creaprocesotub("barcoeste",tubo,2);
  	   write(tubo[1],&param,sizeof(param));
-  }
+  	}
 	else 
 	{  
 	   creaprocesotub("barcooeste",tubo,2);
@@ -53,14 +67,22 @@ main()
 	}  
  	sleep((rand()%(creamax-creamin+1))+creamin);
  }
+ //esperamos que terminen todos los barcos
  for(i=1;i<=maxbarcos;i++) wait(NULL);
  sleep(1);
  kill(pservidorgraf,10);
+ close(fesclusae);
+ close(fesclusao);
+ close(flago);
+ unlink("esclusae");
+ unlink("esclusao");
+ unlink("lago");
  system("reset");
  
 }
 
-//************* FUNCIONES ***********************************//
+
+// ************* FUNCIONES ************************************************//
 
 int creaprocesotub(const char nombre[],int tub[],int canal)
 {
@@ -113,13 +135,13 @@ void leeparametros(struct Parametros *param,int *maxbarcos,int *creamin,int *cre
 {
  int ok=9;
 
- *maxbarcos=10; //Numero de barcos que se crearan
+ *maxbarcos=20; //Numero de barcos que se crearan
  *creamin=1;   //Intervalo de tiempo para crear nuevos barcos MIN
  *creamax=5;   //Intervalo de tiempo para crear nuevos barcos MAX
  *caplago=6;   //Capacidad del lago
- param->tesclusa=7;  // Tiempo de estancia en la esclusa
- param->lagomin=5;   //Intervalo de tiempo en cruzar el lago MIN
- param->lagomax=10;   //Intervalo de tiempo en cruzar el lago MAX
+ param->tesclusa=5;  // Tiempo de estancia en la esclusa
+ param->lagomin=10;   //Intervalo de tiempo en cruzar el lago MIN
+ param->lagomax=20;   //Intervalo de tiempo en cruzar el lago MAX
  param->mevoymin=10;  //Intervalo de tiempo en esperar para irse MIN
  param->mevoymax=15;  //Intervalo de tiempo en esperar para irse MAX
  
