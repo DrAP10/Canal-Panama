@@ -25,7 +25,6 @@ void visualiza(int cola, int donde, int que, int como)
 	llega10=0;
  }
 
-
 }
 
 /*********** FUNCION: crea_cola ********************************************************/ 

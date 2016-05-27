@@ -10,17 +10,30 @@
 #include "comun.h"
 #include "comunbarcos.h"
 
+int colagrafica;
+int fesclusao, fesclusae, flago;
+
+void R14(){
+ visualiza(colagrafica, VOESTEIN, BORRAR, TIPOOESTE); 
+ visualiza(colagrafica, VHORNOS, PINTAR, TIPOOESTE); 
+ close(fesclusae);
+ close(fesclusao);
+ close(flago);
+ exit(0);
+}
+
 main()
 {
 
  
- int colagrafica, lapipe;
+ int lapipe;
  struct Parametros param;
- int fesclusao, fesclusae, flago, testigo=1;
+ int testigo=1;
 
  srand(getpid());
  signal(10,R10); // me preparo para la senyal 10
  signal(12,R12); // me preparo para la senyal 12
+ signal(14,R14);
 
 
  // Creamos y abrimos la cola de mensajes
@@ -37,8 +50,12 @@ main()
  open("/dev/tty",O_RDWR);
  
  visualiza(colagrafica, VOESTEIN, PINTAR, TIPOOESTE); 
+ //programo la alarma
+ alarm(rand()%(param.mevoymax-param.mevoymin+1)+param.mevoymin);
  // reservo sitio en el lago
  read(flago,&testigo,sizeof(testigo));
+ //desactivo la alarma
+ alarm(0);
  // reservo la esclusa este
  read(fesclusao,&testigo,sizeof(testigo));
  //entro en la esclusa

@@ -142,8 +142,8 @@ void leeparametros(struct Parametros *param,int *maxbarcos,int *creamin,int *cre
  param->tesclusa=5;  // Tiempo de estancia en la esclusa
  param->lagomin=10;   //Intervalo de tiempo en cruzar el lago MIN
  param->lagomax=20;   //Intervalo de tiempo en cruzar el lago MAX
- param->mevoymin=10;  //Intervalo de tiempo en esperar para irse MIN
- param->mevoymax=15;  //Intervalo de tiempo en esperar para irse MAX
+ param->mevoymin=5;  //Intervalo de tiempo en esperar para irse MIN
+ param->mevoymax=10;  //Intervalo de tiempo en esperar para irse MAX
  
  while(ok == 9)
  {

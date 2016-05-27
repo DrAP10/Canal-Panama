@@ -10,17 +10,31 @@
 #include "comun.h"
 #include "comunbarcos.h"
 
+int colagrafica;
+int fesclusao, fesclusae, flago;
+void R14()
+{
+	visualiza(colagrafica, VESTEIN, BORRAR, TIPOESTE); 
+	visualiza(colagrafica, VHORNOS, PINTAR, TIPOESTE); 
+	close(fesclusae);
+	close(fesclusao);
+	close(flago);
+ 	exit(0);
+}
+
 main()
 {
 
  
- int colagrafica, lapipe;
+ int  lapipe;
  struct Parametros param;
- int fesclusao, fesclusae, flago, testigo=1;
+ int testigo=1;
+
 
  srand(getpid());
  signal(10,R10); // me preparo para la senyal 10
  signal(12,R12); // me preparo para la senyal 12
+ signal(14,R14);
 
 
  // Creamos y abrimos la cola de mensajes
@@ -37,19 +51,23 @@ main()
  open("/dev/tty",O_RDWR);
 
  visualiza(colagrafica, VESTEIN, PINTAR, TIPOESTE); 
+ // programo la alarma para aburrirme	
+ alarm(rand()%(param.mevoymax-param.mevoymin+1)+param.mevoymin);
  // reservo sitio en el lago
  read(flago,&testigo,sizeof(testigo));
+// desactivo la alarma
+ alarm(0);
  // reservo la esclusa este
  read(fesclusae,&testigo,sizeof(testigo));
  //entro en la esclusa
  visualiza(colagrafica, VESTEIN, BORRAR, TIPOESTE); 
  visualiza(colagrafica, VESCLUSAESTE, PINTAR, TIPOESTE); 
  sleep(param.tesclusa);
-//salgo y voy al lago
+ //salgo y voy al lago
  visualiza(colagrafica, VESCLUSAESTE, BORRAR, TIPOESTE); 
  visualiza(colagrafica, VLAGOE, PINTAR, TIPOESTE); 
  write(fesclusae,&testigo,sizeof(testigo));
- sleep((rand()%(param.lagomax-param.lagomin+1))+param.lagomin);
+ sleep(rand()%(param.lagomax-param.lagomin+1)+param.lagomin);
  // reservo la esclusa oeste
  read(fesclusao,&testigo,sizeof(testigo));
  // salgo del lago y voy a la esclusa
