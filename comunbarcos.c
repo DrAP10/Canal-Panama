@@ -18,7 +18,7 @@ void visualiza(int cola, int donde, int que, int como)
  peticion.cualidad=como;
  
  msgsnd (cola, (struct tipo_elemento *) &peticion,sizeof(struct tipo_elemento)-sizeof(long),0);
-
+      
  if(que==PINTAR) 
  {
 	if(!llega10) pause(); //espero conformidad de que me han pintado, sino me mataran
