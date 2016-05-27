@@ -24,12 +24,11 @@ int llega10=0;
 main()
 {
  
- int pservidorgraf, i;
+ int pservidorgraf, i, pidgesclusae, pidgesclusao, pidglago;
  int tubo[2];
  struct Parametros param;
  int maxbarcos,creamin,creamax, caplago;
  int fesclusao, fesclusae, flago, testigo=1;
-
  
  signal(10,R10);
  signal(12,R12);
@@ -44,6 +43,9 @@ main()
  mkfifo("esclusae",0600);
  mkfifo("esclusao",0600);
  mkfifo("lago",0600);
+ mkfifo("colaeste",0600);
+ mkfifo("colaoeste",0600);
+ mkfifo("colalago",0600);
  // abrimos fifos para escribir testigos
  fesclusae=open("esclusae",O_RDWR);
  fesclusao=open("esclusao",O_RDWR);
@@ -52,13 +54,18 @@ main()
  write(fesclusae,&testigo,sizeof(testigo));
  write(fesclusao,&testigo,sizeof(testigo));
  for(i=0;i<caplago;i++) write(flago,&testigo,sizeof(testigo));
+ // creamos los gestores de colas
+ pidgesclusae=creaproceso("gesclusae",NULL);
+ pidgesclusao=creaproceso("gesclusao",NULL);
+ pidglago=creaproceso("glago",NULL);
+
  // creamos los barcos pasandoles los parametros
  for(i=1;i<=maxbarcos;i++) 
  {
  	if(rand()%2==0) 
  	{
- 	   creaprocesotub("barcoeste",tubo,2);
- 	   write(tubo[1],&param,sizeof(param));
+		creaprocesotub("barcoeste",tubo,2);
+		write(tubo[1],&param,sizeof(param));
   	}
 	else 
 	{  
@@ -69,14 +76,22 @@ main()
  }
  //esperamos que terminen todos los barcos
  for(i=1;i<=maxbarcos;i++) wait(NULL);
- sleep(1);
+ sleep(5);
+ //matamos a los procesos restantes
  kill(pservidorgraf,10);
+ kill(pidgesclusae,10);
+ kill(pidgesclusao,10);
+ kill(pidglago,10);
+ //cerramos y borramos fifos
  close(fesclusae);
  close(fesclusao);
  close(flago);
  unlink("esclusae");
  unlink("esclusao");
  unlink("lago");
+ unlink("colaeste");
+ unlink("colaoeste");
+ unlink("colalago");
  system("reset");
  
 }
@@ -137,13 +152,13 @@ void leeparametros(struct Parametros *param,int *maxbarcos,int *creamin,int *cre
 
  *maxbarcos=20; //Numero de barcos que se crearan
  *creamin=1;   //Intervalo de tiempo para crear nuevos barcos MIN
- *creamax=5;   //Intervalo de tiempo para crear nuevos barcos MAX
- *caplago=6;   //Capacidad del lago
- param->tesclusa=5;  // Tiempo de estancia en la esclusa
- param->lagomin=10;   //Intervalo de tiempo en cruzar el lago MIN
- param->lagomax=20;   //Intervalo de tiempo en cruzar el lago MAX
- param->mevoymin=5;  //Intervalo de tiempo en esperar para irse MIN
- param->mevoymax=10;  //Intervalo de tiempo en esperar para irse MAX
+ *creamax=3;   //Intervalo de tiempo para crear nuevos barcos MAX
+ *caplago=4;   //Capacidad del lago
+ param->tesclusa=6;  // Tiempo de estancia en la esclusa
+ param->lagomin=3;   //Intervalo de tiempo en cruzar el lago MIN
+ param->lagomax=9;   //Intervalo de tiempo en cruzar el lago MAX
+ param->mevoymin=10;  //Intervalo de tiempo en esperar para irse MIN
+ param->mevoymax=15;  //Intervalo de tiempo en esperar para irse MAX
  
  while(ok == 9)
  {
@@ -170,9 +185,9 @@ void leeparametros(struct Parametros *param,int *maxbarcos,int *creamin,int *cre
 		}while(*creamin< 1 ||*creamin > 10 );
 
 		do{
-			printf("Intervalo de tiempo para crear nuevos barcos MAX [entre 5 y 20]: \n");
+			printf("Intervalo de tiempo para crear nuevos barcos MAX [entre 2 y 20]: \n");
 			scanf("%d",creamax);
-		}while(*creamax < 5 || *creamax > 20 || *creamax<=*creamin);
+		}while(*creamax < 2 || *creamax > 20 || *creamax<=*creamin);
  
 		do{
 			printf("Tiempo de estancia en la esclusa [maximo 20]: \n");
@@ -190,9 +205,9 @@ void leeparametros(struct Parametros *param,int *maxbarcos,int *creamin,int *cre
 		}while(param->lagomin< 1 ||param->lagomin > 10 );
 	
 		do{
-			printf("Intervalo de tiempo en cruzar el lago MAX [entre 5 y 20]: \n");
+			printf("Intervalo de tiempo en cruzar el lago MAX [entre 2 y 20]: \n");
 			scanf("%d",&param->lagomax);
-		}while(param->lagomax < 5 || param->lagomax > 20 || param->lagomax <= param->lagomin );
+		}while(param->lagomax < 2 || param->lagomax > 20 || param->lagomax <= param->lagomin );
 	
 		do{
 			printf("Intervalo de tiempo en esperar para irse MIN [entre 1 y 10]:\n");

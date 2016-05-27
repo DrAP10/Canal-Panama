@@ -4,6 +4,9 @@
 #include "comunbarcos.h"
 
 int llega10=0;
+int llega14=0;
+
+
 /*********** FUNCION: visualiza ********************************************************/ 
 /*********** Pinta o borra en el servidor gráfico **************************************/
 
@@ -17,7 +20,7 @@ void visualiza(int cola, int donde, int que, int como)
  peticion.que=que;
  peticion.cualidad=como;
  
- msgsnd (cola, (struct tipo_elemento *) &peticion,sizeof(struct tipo_elemento)-sizeof(long),0);
+ msgsnd(cola, (struct tipo_elemento *) &peticion,sizeof(struct tipo_elemento)-sizeof(long),0);
       
  if(que==PINTAR) 
  {
@@ -63,4 +66,12 @@ void R12() // indica que no se puede pintar y muere
  printf("CLIENTE %d: No puedo pintarme, porque no hay sitio en la ventana\n",getpid());
  exit(-1);
 }
+
+/******************/
+
+void R14()
+{
+ llega14=1;
+}
+
 

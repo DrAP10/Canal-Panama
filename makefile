@@ -1,4 +1,4 @@
-all: servidor_ncurses canalpanama barcoeste barcooeste
+all: servidor_ncurses canalpanama barcoeste barcooeste gesclusae gesclusao glago
 
 servidor_ncurses: servidor_ncurses.c definiciones.h comun.h
 	cc servidor_ncurses.c -o servidor_ncurses -lncurses
@@ -12,4 +12,12 @@ barcoeste: barcoeste.c comun.h comunbarcos.c comunbarcos.h
 barcooeste: barcooeste.c comun.h comunbarcos.c comunbarcos.h
 	cc barcooeste.c comunbarcos.c -o barcooeste
 
+gesclusae: gesclusae.c
+	cc gesclusae.c -o gesclusae
+
+gesclusao: gesclusao.c
+	cc gesclusao.c -o gesclusao
+
+glago: glago.c
+	cc glago.c -o glago
 
